@@ -4,3 +4,8 @@
 .intellijPlatform
 .kotlin
 build
+*.hprof
+local.properties
+build/
+.idea/
+.gradle/
