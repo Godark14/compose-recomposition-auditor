@@ -1,6 +1,7 @@
 package com.github.godark14.composerecompositionauditor.inspection
 
-
+import com.github.godark14.composerecompositionauditor.inspection.ComposableUtils.isComposable
+import com.github.godark14.composerecompositionauditor.inspection.ComposableUtils.isPreview
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
@@ -14,22 +15,12 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtVisitorVoid
 
-/**
- * Flags lambdas inside @Composable functions that capture a local `var`
- * without going through `remember { mutableStateOf(...) }`. Such captures
- * defeat smart recomposition: Compose can't track changes to a plain
- * captured variable the way it tracks a MutableState.
- *
- * Deliberately scoped to local `var`s declared in the same composable
- * function — captures of class properties, top-level vars, or `var`
- * parameters are out of scope for this first pass.
- */
 class UnstableLambdaCaptureInspection : LocalInspectionTool() {
 
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): KtVisitorVoid =
         object : KtVisitorVoid() {
             override fun visitNamedFunction(function: KtNamedFunction) {
-                if (!function.isComposable()) return
+                if (!function.isComposable() || function.isPreview()) return
                 val body = function.bodyExpression ?: function.bodyBlockExpression ?: return
 
                 PsiTreeUtil.findChildrenOfType(body, KtLambdaExpression::class.java)
@@ -38,12 +29,6 @@ class UnstableLambdaCaptureInspection : LocalInspectionTool() {
             }
         }
 
-    private fun KtNamedFunction.isComposable(): Boolean =
-        annotationEntries.any { it.shortName?.asString() == "Composable" }
-
-    /** True for the `{ ... }` lambda passed directly to `remember(...)` —
-     * that lambda computes an initial value once; it isn't the kind of
-     * capture this inspection is concerned with. */
     private fun KtLambdaExpression.isDirectArgumentOfRemember(): Boolean {
         val lambdaArgument = parent as? KtLambdaArgument ?: return false
         val call = lambdaArgument.parent as? KtCallExpression ?: return false
@@ -62,7 +47,7 @@ class UnstableLambdaCaptureInspection : LocalInspectionTool() {
             if (property.isRememberDelegated()) return@forEach
 
             val name = property.name ?: return@forEach
-            if (!flaggedNames.add(name)) return@forEach // one problem per captured name per lambda
+            if (!flaggedNames.add(name)) return@forEach
 
             holder.registerProblem(
                 reference,
@@ -74,7 +59,6 @@ class UnstableLambdaCaptureInspection : LocalInspectionTool() {
         }
     }
 
-    /** True for `var x by remember { mutableStateOf(...) }` — already safe. */
     private fun KtProperty.isRememberDelegated(): Boolean {
         val delegateCall = delegate?.expression as? KtCallExpression ?: return false
         return delegateCall.calleeExpression?.text == "remember"

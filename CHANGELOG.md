@@ -3,6 +3,7 @@
 ## [Unreleased]
 ### Added
 - `UnstableLambdaCaptureInspection`: flags lambdas inside `@Composable` functions that capture a local `var` without `remember`, since Compose can't track changes to a plain captured variable
+- Both inspections now skip `@Preview`-annotated composables (and multipreview variants like `@PreviewScreenSizes`), since preview functions commonly use unoptimized mock data on purpose
 
 ### Known limitations
 - `UnstableLambdaCaptureInspection` only covers local `var`s declared inside the composable function itself — captures of class properties, top-level `var`s, or `var` function parameters are not yet detected

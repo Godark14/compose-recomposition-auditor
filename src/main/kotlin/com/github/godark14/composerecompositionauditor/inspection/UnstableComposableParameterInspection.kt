@@ -1,5 +1,7 @@
 package com.github.godark14.composerecompositionauditor.inspection
 
+import com.github.godark14.composerecompositionauditor.inspection.ComposableUtils.isComposable
+import com.github.godark14.composerecompositionauditor.inspection.ComposableUtils.isPreview
 import com.github.godark14.composerecompositionauditor.stability.Stability
 import com.github.godark14.composerecompositionauditor.stability.StabilityInferencer
 import com.github.godark14.composerecompositionauditor.stability.TypeDescriptor
@@ -17,13 +19,10 @@ class UnstableComposableParameterInspection : LocalInspectionTool() {
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): KtVisitorVoid =
         object : KtVisitorVoid() {
             override fun visitNamedFunction(function: KtNamedFunction) {
-                if (!function.isComposable()) return
+                if (!function.isComposable() || function.isPreview()) return
                 function.valueParameters.forEach { parameter -> checkParameter(parameter, holder) }
             }
         }
-
-    private fun KtNamedFunction.isComposable(): Boolean =
-        annotationEntries.any { it.shortName?.asString() == "Composable" }
 
     private fun checkParameter(parameter: KtParameter, holder: ProblemsHolder) {
         val descriptor = TypeDescriptorExtractor.extract(parameter) ?: return
