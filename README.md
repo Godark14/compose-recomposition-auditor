@@ -1,45 +1,55 @@
-# compose-recomposition-auditor
+# Compose Recomposition Auditor
 
-![Build](https://github.com/Godark14/compose-recomposition-auditor/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [group](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml), [name](./src/main/resources/META-INF/plugin.xml), and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin [description](./src/main/resources/META-INF/plugin.xml) (see [Tips][docs:plugin-description]) and this README to describe what your plugin does.
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
+<!-- Plugin description -->
+Detects Jetpack Compose recomposition issues directly in the editor — before you
+ever run a profiler. The plugin reproduces (a conservative subset of) the Compose
+compiler's own stability inference to flag `@Composable` function parameters that
+are likely to cause unnecessary recompositions.
 
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+**Detected issues:**
+- Mutable collection interfaces (`List`, `Map`, `Set`) passed as `@Composable` parameters
+- Classes with `var` properties passed as `@Composable` parameters, without `@Stable`/`@Immutable`
+- Types defined outside the current module whose stability cannot be determined
+
+**Quick-fixes:**
+- **Convert to Immutable\*** — rewrites `List<T>` / `Map<K,V>` / `Set<T>` to their
+  `kotlinx.collections.immutable` equivalents, adding both the import and the
+  Gradle dependency automatically if missing
+- **Annotate class with @Stable** — adds the `@Stable` annotation to the offending
+  class declaration
+
+More recomposition-related inspections (unstable lambda captures, `@Preview`
+exclusions) are planned.
+<!-- Plugin description end -->
 
 ## Installation
 
-- Using the IDE built-in plugin system:
+Using the IDE built-in plugin system:
 
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "compose-recomposition-auditor"</kbd> >
-  <kbd>Install</kbd>
+1. Open **Settings/Preferences > Plugins > Marketplace**
+2. Search for "Compose Recomposition Auditor"
+3. Click **Install**
 
-- Using JetBrains Marketplace:
+Manually:
 
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
+1. Download the [latest release](https://github.com/Godark14/compose-recomposition-auditor/releases/latest)
+2. Open **Settings/Preferences > Plugins**, click the gear icon ⚙️, then **Install plugin from disk...**
+3. Select the downloaded file
 
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+## How it works
 
-- Manually:
-
-  Download the [latest release](https://github.com/Godark14/compose-recomposition-auditor/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
-
+The plugin models Kotlin types through a small, PSI-independent `TypeDescriptor`
+representation, and infers stability against it using the same rules the Compose
+compiler applies (primitives and functions are stable; mutable collection
+interfaces and classes with `var` properties are unstable; external types with
+no visible source are treated as unknown/unstable by default). This separation
+keeps the core inference logic unit-testable without spinning up an IDE instance,
+while a thin extraction layer bridges real Kotlin PSI (via the K2 Analysis API)
+to that model for use in the live inspection.
 
 ---
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation

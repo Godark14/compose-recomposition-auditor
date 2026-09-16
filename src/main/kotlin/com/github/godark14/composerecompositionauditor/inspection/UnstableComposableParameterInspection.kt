@@ -2,16 +2,15 @@ package com.github.godark14.composerecompositionauditor.inspection
 
 import com.github.godark14.composerecompositionauditor.stability.Stability
 import com.github.godark14.composerecompositionauditor.stability.StabilityInferencer
+import com.github.godark14.composerecompositionauditor.stability.TypeDescriptor
 import com.github.godark14.composerecompositionauditor.stability.TypeDescriptorExtractor
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.codeInspection.LocalInspectionToolSession
+import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtVisitorVoid
-
-private const val COMPOSABLE_ANNOTATION_FQN = "androidx.compose.runtime.Composable"
 
 class UnstableComposableParameterInspection : LocalInspectionTool() {
 
@@ -25,9 +24,6 @@ class UnstableComposableParameterInspection : LocalInspectionTool() {
 
     private fun KtNamedFunction.isComposable(): Boolean =
         annotationEntries.any { it.shortName?.asString() == "Composable" }
-    // Note: this checks the short name only. A production version should
-    // resolve the annotation to confirm it's androidx.compose.runtime.Composable
-    // and not an unrelated annotation with the same short name.
 
     private fun checkParameter(parameter: KtParameter, holder: ProblemsHolder) {
         val descriptor = TypeDescriptorExtractor.extract(parameter) ?: return
@@ -45,6 +41,17 @@ class UnstableComposableParameterInspection : LocalInspectionTool() {
             Stability.STABLE -> return
         }
 
-        holder.registerProblem(parameter, message, ProblemHighlightType.WARNING)
+        val fixes = buildFixes(descriptor)
+        holder.registerProblem(parameter, message, ProblemHighlightType.WARNING, *fixes.toTypedArray())
+    }
+
+    private fun buildFixes(descriptor: TypeDescriptor): List<LocalQuickFix> = when (descriptor) {
+        is TypeDescriptor.MutableCollectionType ->
+            listOf(ConvertToImmutableCollectionQuickFix(descriptor.name))
+
+        is TypeDescriptor.ClassType ->
+            if (descriptor.hasVarProperty) listOf(AddStableAnnotationQuickFix()) else emptyList()
+
+        else -> emptyList()
     }
 }
