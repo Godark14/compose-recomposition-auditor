@@ -26,5 +26,12 @@
             enabledByDefault="true"
             level="WARNING"
             implementationClass="com.github.godark14.composerecompositionauditor.inspection.UnstableComposableParameterInspection"/>
+        <localInspection
+            language="kotlin"
+            displayName="Unstable lambda capture in @Composable function"
+            groupName="Compose Recomposition Auditor"
+            enabledByDefault="true"
+            level="WARNING"
+            implementationClass="com.github.godark14.composerecompositionauditor.inspection.UnstableLambdaCaptureInspection"/>
     </extensions>
 </idea-plugin>
