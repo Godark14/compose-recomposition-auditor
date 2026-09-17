@@ -7,7 +7,7 @@
 
 ### Known limitations
 - `UnstableLambdaCaptureInspection` only covers local `var`s declared inside the composable function itself — captures of class properties, top-level `var`s, or `var` function parameters are not yet detected
-- Only `by remember { ... }` is recognized as a safe delegate; `rememberUpdatedState` is not yet recognized and will still be flagged
+- Only `by remember { ... }` is recognized as a safe delegate for local `var`s. Recognizing `rememberUpdatedState` here is a non-goal: it returns a read-only `State<T>` and cannot delegate a `var`, so it doesn't apply to this inspection by construction
 - One warning is reported per captured variable name per lambda, even if referenced multiple times inside it
 
 ## [0.0.1]

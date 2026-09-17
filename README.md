@@ -23,8 +23,7 @@ defeat smart recomposition entirely.
 - **Annotate class with @Stable** — adds the `@Stable` annotation to the offending
   class declaration
 
-More recomposition-related inspections (`@Preview` exclusions, `rememberUpdatedState`
-recognition) are planned.
+More recomposition-related inspections are planned.
 <!-- Plugin description end -->
 
 ## Installation
