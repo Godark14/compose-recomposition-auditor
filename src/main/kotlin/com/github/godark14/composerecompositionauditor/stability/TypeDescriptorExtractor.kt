@@ -97,6 +97,4 @@ object TypeDescriptorExtractor {
                 .filterIsInstance<KaPropertySymbol>()
                 .any { !it.isVal }
         }
-
-    private fun ClassId.asFqNameString(): String = asSingleFqName().asString()
 }
