@@ -11,12 +11,14 @@ dependencies {
 
     intellijPlatform {
         if (System.getenv("CI") == "true") {
-            // GitHub Actions has no local Android Studio install — download instead.
-            androidStudio(providers.gradleProperty("platformVersion"))
+            // GitHub Actions has no local Android Studio install. Quail 4
+            // (2026.1.4) isn't indexed in JetBrains' Android Studio release
+            // list yet, so we pin CI to 2026.1.2 instead — an earlier release
+            // on the same IntelliJ Platform branch (261), which is what
+            // actually matters for binary/API compatibility here.
+            androidStudio("2026.1.2")
         } else {
-            // Local dev machine: use the already-installed Android Studio,
-            // since androidStudio(version) couldn't resolve Quail 4 at the
-            // time this was set up (see gradle.properties comment).
+            // Local dev machine: use the already-installed Android Studio.
             local("C:/Users/GODARK/AppData/Local/Programs/Android Studio")
         }
         bundledPlugin("org.jetbrains.kotlin")
