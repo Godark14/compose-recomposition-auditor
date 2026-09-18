@@ -2,6 +2,11 @@
 
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 
+> **Note:** This plugin is currently pending JetBrains Marketplace review.
+> Until it's approved, install it manually from the
+> [latest release](https://github.com/Godark14/compose-recomposition-auditor/releases/latest)
+> — see the Installation section below.
+
 <!-- Plugin description -->
 Detects Jetpack Compose recomposition issues directly in the editor — before you
 ever run a profiler. The plugin reproduces (a conservative subset of) the Compose
@@ -28,17 +33,17 @@ More recomposition-related inspections are planned.
 
 ## Installation
 
-Using the IDE built-in plugin system:
-
-1. Open **Settings/Preferences > Plugins > Marketplace**
-2. Search for "Compose Recomposition Auditor"
-3. Click **Install**
-
-Manually:
+Manually (while pending Marketplace approval):
 
 1. Download the [latest release](https://github.com/Godark14/compose-recomposition-auditor/releases/latest)
 2. Open **Settings/Preferences > Plugins**, click the gear icon ⚙️, then **Install plugin from disk...**
 3. Select the downloaded file
+
+Once approved, using the IDE built-in plugin system:
+
+1. Open **Settings/Preferences > Plugins > Marketplace**
+2. Search for "Compose Recomposition Auditor"
+3. Click **Install**
 
 ## How it works
 
