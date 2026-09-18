@@ -3,6 +3,7 @@ package com.github.godark14.composerecompositionauditor.stability
 import com.github.godark14.composerecompositionauditor.stability.TypeDescriptor.ClassType
 import com.github.godark14.composerecompositionauditor.stability.TypeDescriptor.FunctionType
 import com.github.godark14.composerecompositionauditor.stability.TypeDescriptor.ImmutableCollectionType
+import com.github.godark14.composerecompositionauditor.stability.TypeDescriptor.KnownStableType
 import com.github.godark14.composerecompositionauditor.stability.TypeDescriptor.MutableCollectionType
 import com.github.godark14.composerecompositionauditor.stability.TypeDescriptor.PrimitiveType
 import org.jetbrains.kotlin.analysis.api.KaSession
@@ -17,12 +18,6 @@ import org.jetbrains.kotlin.analysis.api.types.KaType
 import org.jetbrains.kotlin.name.ClassId
 import org.jetbrains.kotlin.psi.KtParameter
 
-/**
- * Bridges real Kotlin PSI/types (resolved via the K2 Analysis API) to the
- * PSI-independent [TypeDescriptor] model so [StabilityInferencer] can be
- * reused unchanged. Kept as a thin, isolated layer — this is the piece most
- * likely to need adjustment across Analysis API versions.
- */
 object TypeDescriptorExtractor {
 
     private val PRIMITIVE_FQ_NAMES = setOf(
@@ -46,18 +41,31 @@ object TypeDescriptorExtractor {
         "kotlinx.collections.immutable.PersistentSet",
     )
 
+    /**
+     * Types known to be stable by library contract, even when defined
+     * outside this module with no visible source and no @Stable/@Immutable
+     * annotation resolvable from binary metadata. Kept small and
+     * deliberately conservative — this is an escape hatch for well-known,
+     * widely-used types, not a general substitute for real annotations.
+     */
+    private val KNOWN_STABLE_EXTERNAL_FQ_NAMES = setOf(
+        "androidx.compose.ui.Modifier",
+        "androidx.compose.runtime.State",
+        "androidx.compose.runtime.MutableState",
+        "androidx.compose.runtime.snapshots.SnapshotStateList",
+        "androidx.compose.runtime.snapshots.SnapshotStateMap",
+        "kotlinx.coroutines.flow.StateFlow",
+        "kotlinx.coroutines.flow.SharedFlow",
+    )
+
     private const val STABLE_ANNOTATION_FQN = "androidx.compose.runtime.Stable"
     private const val IMMUTABLE_ANNOTATION_FQN = "androidx.compose.runtime.Immutable"
 
     fun extract(parameter: KtParameter): TypeDescriptor? = analyze(parameter) {
-        // 'this' here is the KaSession provided by analyze(); pass it along
-        // explicitly instead of relying on experimental context parameters.
         extractFromType(this, parameter.returnType)
     }
 
     private fun extractFromType(session: KaSession, type: KaType): TypeDescriptor? = with(session) {
-        // Function types (e.g. () -> Unit) are a subtype of KaClassType,
-        // so this check must come before the generic classId lookup below.
         if (type is KaFunctionType) {
             return@with FunctionType(type.toString())
         }
@@ -74,6 +82,9 @@ object TypeDescriptorExtractor {
 
             fqName in IMMUTABLE_COLLECTION_FQ_NAMES ->
                 ImmutableCollectionType(fqName.substringAfterLast('.'))
+
+            fqName in KNOWN_STABLE_EXTERNAL_FQ_NAMES ->
+                KnownStableType(fqName.substringAfterLast('.'))
 
             else -> {
                 val classSymbol = classType.symbol as? KaClassSymbol ?: return@with null
@@ -97,4 +108,5 @@ object TypeDescriptorExtractor {
                 .filterIsInstance<KaPropertySymbol>()
                 .any { !it.isVal }
         }
+
 }

@@ -38,5 +38,13 @@ abstract class ComposeAuditorTestCase : BasePlatformTestCase() {
             interface ImmutableSet<out E> : Set<E>
             """.trimIndent(),
         )
+        myFixture.addFileToProject(
+            "androidx/compose/ui/Modifier.kt",
+            """
+    package androidx.compose.ui
+
+    interface Modifier
+    """.trimIndent(),
+        )
     }
 }

@@ -5,6 +5,7 @@
 - `UnstableLambdaCaptureInspection`: flags lambdas inside `@Composable` functions that capture a local `var` without `remember`, since Compose can't track changes to a plain captured variable
 - Both inspections now skip `@Preview`-annotated composables (and multipreview variants like `@PreviewScreenSizes`), since preview functions commonly use unoptimized mock data on purpose
 - Integration tests for both inspections using `BasePlatformTestCase`, covering the stability rules, the @Preview exclusion, and the remember-capture logic end-to-end
+- False-positive reduction: a small whitelist of known-stable external Compose/coroutines types (`Modifier`, `State`, `MutableState`, `StateFlow`, `SharedFlow`, etc.) that are treated as stable even without a resolvable `@Stable`/`@Immutable` annotation
 
 ### Known limitations
 - `UnstableLambdaCaptureInspection` only covers local `var`s declared inside the composable function itself — captures of class properties, top-level `var`s, or `var` function parameters are not yet detected

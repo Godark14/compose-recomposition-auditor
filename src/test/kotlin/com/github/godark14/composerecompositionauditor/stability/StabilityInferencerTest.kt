@@ -59,4 +59,10 @@ class StabilityInferencerTest {
         val type = ClassType(name = "UiState")
         assertEquals(Stability.STABLE, StabilityInferencer.infer(type))
     }
+
+    @Test
+    fun `known stable external type is stable`() {
+        val type = TypeDescriptor.KnownStableType(name = "Modifier")
+        assertEquals(Stability.STABLE, StabilityInferencer.infer(type))
+    }
 }

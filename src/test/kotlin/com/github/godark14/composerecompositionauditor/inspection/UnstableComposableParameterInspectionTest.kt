@@ -91,4 +91,18 @@ class UnstableComposableParameterInspectionTest : ComposeAuditorTestCase() {
         )
         assertTrue(warnings().none { it.contains("items") })
     }
+
+    fun `test does not flag Modifier parameter even though unannotated`() {
+        myFixture.configureByText(
+            "Test.kt",
+            """
+        import androidx.compose.runtime.Composable
+        import androidx.compose.ui.Modifier
+
+        @Composable
+        fun MyScreen(modifier: Modifier) {}
+        """.trimIndent(),
+        )
+        assertTrue(warnings().none { it.contains("modifier") })
+    }
 }
