@@ -4,34 +4,47 @@
     <vendor url="https://github.com/Godark14">Godark14</vendor>
 
     <description><![CDATA[
-    Detects Jetpack Compose recomposition issues directly in the editor: unstable
-    parameters, mutable collections passed to @Composable functions, and lambdas
-    that capture mutable state without remember/rememberUpdatedState.
-    Provides quick-fixes to stabilize composables and reduce unnecessary recompositions.
-    ]]></description>
+  <p>Detects Jetpack Compose recomposition issues directly in the editor —
+  before you ever need to run a profiler. The plugin reproduces (a conservative
+  subset of) the Compose compiler's own stability inference to catch problems
+  as you type.</p>
+
+  <h3>Detected issues</h3>
+  <ul>
+    <li>Mutable collection interfaces (<code>List</code>, <code>Map</code>, <code>Set</code>) passed as <code>@Composable</code> parameters</li>
+    <li>Classes with <code>var</code> properties passed as <code>@Composable</code> parameters, without <code>@Stable</code>/<code>@Immutable</code></li>
+    <li>Types defined outside the current module whose stability cannot be determined</li>
+    <li>Lambdas inside a <code>@Composable</code> function that capture a local <code>var</code> without <code>remember</code></li>
+  </ul>
+
+  <h3>Quick-fixes</h3>
+  <ul>
+    <li><b>Convert to Immutable*</b> — rewrites <code>List&lt;T&gt;</code> / <code>Map&lt;K,V&gt;</code> / <code>Set&lt;T&gt;</code> to their <code>kotlinx.collections.immutable</code> equivalents, adding both the import and the Gradle dependency automatically</li>
+    <li><b>Annotate class with @Stable</b> — adds the <code>@Stable</code> annotation to the offending class declaration</li>
+  </ul>
+
+  <h3>False-positive reduction</h3>
+  <p>Skips <code>@Preview</code>-annotated composables, and recognizes a small
+  whitelist of well-known stable Compose/coroutines types (<code>Modifier</code>,
+  <code>State</code>, <code>StateFlow</code>, etc.) that can't otherwise be proven
+  stable from binary metadata alone.</p>
+]]></description>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>org.jetbrains.kotlin</depends>
     <depends>org.jetbrains.android</depends>
 
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
-        <supportsKotlinPluginMode supportsK2="true"/>
+        <supportsKotlinPluginMode supportsK2="true" />
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <localInspection
-            language="kotlin"
-            displayName="Unstable parameter in @Composable function"
-            groupName="Compose Recomposition Auditor"
+        <localInspection displayName="Unstable parameter in @Composable function" enabledByDefault="true"
+            groupName="Compose Recomposition Auditor" implementationClass="com.github.godark14.composerecompositionauditor.inspection.UnstableComposableParameterInspection" language="kotlin"
+            level="WARNING" />
+        <localInspection displayName="Unstable lambda capture in @Composable function"
             enabledByDefault="true"
-            level="WARNING"
-            implementationClass="com.github.godark14.composerecompositionauditor.inspection.UnstableComposableParameterInspection"/>
-        <localInspection
-            language="kotlin"
-            displayName="Unstable lambda capture in @Composable function"
-            groupName="Compose Recomposition Auditor"
-            enabledByDefault="true"
-            level="WARNING"
-            implementationClass="com.github.godark14.composerecompositionauditor.inspection.UnstableLambdaCaptureInspection"/>
+            groupName="Compose Recomposition Auditor" implementationClass="com.github.godark14.composerecompositionauditor.inspection.UnstableLambdaCaptureInspection" language="kotlin"
+            level="WARNING" />
     </extensions>
 </idea-plugin>

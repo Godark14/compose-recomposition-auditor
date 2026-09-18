@@ -9,3 +9,7 @@ local.properties
 build/
 .idea/
 .gradle/
+private_key.pem
+chain.crt
+*.pem
+*.crt
