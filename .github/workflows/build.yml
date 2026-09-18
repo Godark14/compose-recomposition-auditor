@@ -28,6 +28,12 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    # Temporarily disabled: Android Studio Quail 4 (2026.1.4) is not yet
+    # resolvable via androidStudio() in the IntelliJ Platform Gradle Plugin's
+    # release list, so CI can't download a matching IDE distribution.
+    # Re-enable once JetBrains indexes it, or once a pinned same-branch (261)
+    # fallback version is confirmed to resolve.
+    if: false
     steps:
 
       # Free GitHub Actions Environment Disk Space
