@@ -1,6 +1,8 @@
 # Compose Recomposition Auditor Changelog
 
 ## [Unreleased]
+
+## [0.1.0] - 2026-09-19
 ### Added
 - `UnstableLambdaCaptureInspection`: flags lambdas inside `@Composable` functions that capture a local `var` without `remember`, since Compose can't track changes to a plain captured variable
 - Both inspections now skip `@Preview`-annotated composables (and multipreview variants like `@PreviewScreenSizes`), since preview functions commonly use unoptimized mock data on purpose
@@ -20,7 +22,7 @@
 - `UnstableComposableParameterInspection`: flags `@Composable` function parameters with unstable or unknown-stability types
 - Quick-fix: convert `List`/`Map`/`Set` parameters to their `kotlinx.collections.immutable` equivalents, adding the import and Gradle dependency automatically
 - Quick-fix: annotate a class with `@Stable` when it has a `var` property causing instability
-- - Integration tests for both inspections using `BasePlatformTestCase`, covering the stability rules, the @Preview exclusion, and the remember-capture logic end-to-end
 
-[Unreleased]: https://github.com/Godark14/compose-recomposition-auditor/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/Godark14/compose-recomposition-auditor/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/Godark14/compose-recomposition-auditor/compare/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/Godark14/compose-recomposition-auditor/commits/v0.0.1
