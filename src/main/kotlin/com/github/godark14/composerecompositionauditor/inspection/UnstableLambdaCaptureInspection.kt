@@ -2,13 +2,12 @@ package com.github.godark14.composerecompositionauditor.inspection
 
 import com.github.godark14.composerecompositionauditor.inspection.ComposableUtils.isComposable
 import com.github.godark14.composerecompositionauditor.inspection.ComposableUtils.isPreview
+import com.github.godark14.composerecompositionauditor.stability.LambdaCaptureAnalyzer
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.kotlin.idea.references.mainReference
-import org.jetbrains.kotlin.psi.KtCallExpression
-import org.jetbrains.kotlin.psi.KtLambdaArgument
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
@@ -24,16 +23,10 @@ class UnstableLambdaCaptureInspection : LocalInspectionTool() {
                 val body = function.bodyExpression ?: function.bodyBlockExpression ?: return
 
                 PsiTreeUtil.findChildrenOfType(body, KtLambdaExpression::class.java)
-                    .filterNot { it.isDirectArgumentOfRemember() }
+                    .filterNot { LambdaCaptureAnalyzer.isDirectArgumentOfRemember(it) }
                     .forEach { lambda -> checkLambda(lambda, function, holder) }
             }
         }
-
-    private fun KtLambdaExpression.isDirectArgumentOfRemember(): Boolean {
-        val lambdaArgument = parent as? KtLambdaArgument ?: return false
-        val call = lambdaArgument.parent as? KtCallExpression ?: return false
-        return call.calleeExpression?.text == "remember"
-    }
 
     private fun checkLambda(lambda: KtLambdaExpression, function: KtNamedFunction, holder: ProblemsHolder) {
         val flaggedNames = mutableSetOf<String>()
@@ -60,7 +53,7 @@ class UnstableLambdaCaptureInspection : LocalInspectionTool() {
     }
 
     private fun KtProperty.isRememberDelegated(): Boolean {
-        val delegateCall = delegate?.expression as? KtCallExpression ?: return false
+        val delegateCall = delegate?.expression as? org.jetbrains.kotlin.psi.KtCallExpression ?: return false
         return delegateCall.calleeExpression?.text == "remember"
     }
 }
