@@ -14,6 +14,8 @@ compiler's own stability inference to flag `@Composable` function parameters tha
 are likely to cause unnecessary recompositions, and detects lambda captures that
 defeat smart recomposition entirely.
 
+## Free
+
 **Detected issues:**
 - Mutable collection interfaces (`List`, `Map`, `Set`) passed as `@Composable` parameters
 - Classes with `var` properties passed as `@Composable` parameters, without `@Stable`/`@Immutable`
@@ -28,7 +30,15 @@ defeat smart recomposition entirely.
 - **Annotate class with @Stable** — adds the `@Stable` annotation to the offending
   class declaration
 
-More recomposition-related inspections are planned.
+## Premium (30-day free trial included)
+
+- **Export Stability Report** — scans the whole project and exports every
+  detected issue as an HTML report (readable in any browser) and a JSON file
+  (for scripting or archiving), available from **Tools > Export Stability
+  Report**
+
+More premium features are planned, including a real-time recomposition
+dashboard. Feedback and feature requests are welcome via GitHub issues.
 <!-- Plugin description end -->
 
 ## Installation
