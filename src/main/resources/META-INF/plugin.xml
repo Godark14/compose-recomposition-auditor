@@ -6,7 +6,8 @@
     <product-descriptor
         code="PCOMPOSERECOMPO"
         release-date="20261001"
-        release-version="20261"/>
+        release-version="20261"
+        optional="true"/>
 
     <description><![CDATA[
   <p>Detects Jetpack Compose recomposition issues directly in the editor —
@@ -27,16 +28,15 @@
 
   <h3>Premium (30-day free trial included)</h3>
   <ul>
-    <li>Real-time recomposition dashboard — see which composables recompose most often while you run your app</li>
-    <li>Exportable stability reports (HTML/JSON) for sharing with your team or tech lead</li>
-    <li>Historical comparison between commits/branches — spot new instabilities introduced by a PR</li>
-    <li>CI integration via a Gradle task — fail the build when instabilities exceed a configurable threshold</li>
-    <li>Team-wide configuration (<code>.compose-auditor.yml</code>) — whitelist custom types, adjust severity, exclude modules</li>
-    <li>Batch quick-fix — apply fixes across an entire file or module in one action</li>
+    <li>Exportable stability reports (HTML/JSON) covering your whole project — share findings with your team or tech lead</li>
   </ul>
 
   <p>All free features remain free forever. Premium features can be evaluated
   for 30 days before requiring a license.</p>
+
+  <p>More premium features are planned, including a real-time recomposition
+  dashboard and CI integration. Feedback and feature requests are welcome via
+  the GitHub repository.</p>
 ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
@@ -48,21 +48,22 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <localInspection displayName="Unstable parameter in @Composable function" enabledByDefault="true"
-            groupName="Compose Recomposition Auditor" implementationClass="com.github.godark14.composerecompositionauditor.inspection.UnstableComposableParameterInspection" language="kotlin"
-            level="WARNING" />
+        <localInspection displayName="Unstable parameter in @Composable function"
+            enabledByDefault="true" groupName="Compose Recomposition Auditor"
+            implementationClass="com.github.godark14.composerecompositionauditor.inspection.UnstableComposableParameterInspection"
+            language="kotlin" level="WARNING" />
         <localInspection displayName="Unstable lambda capture in @Composable function"
-            enabledByDefault="true"
-            groupName="Compose Recomposition Auditor" implementationClass="com.github.godark14.composerecompositionauditor.inspection.UnstableLambdaCaptureInspection" language="kotlin"
-            level="WARNING" />
+            enabledByDefault="true" groupName="Compose Recomposition Auditor"
+            implementationClass="com.github.godark14.composerecompositionauditor.inspection.UnstableLambdaCaptureInspection"
+            language="kotlin" level="WARNING" />
     </extensions>
 
     <actions>
-        <action id="ComposeRecompositionAuditor.ExportReport"
-            class="com.github.godark14.composerecompositionauditor.actions.ExportStabilityReportAction"
-            text="Export Stability Report"
-            description="Export a stability report as HTML/JSON (Premium feature)">
-            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        <action class="com.github.godark14.composerecompositionauditor.actions.ExportStabilityReportAction"
+            description="Export a stability report as HTML/JSON (Premium feature)"
+            id="ComposeRecompositionAuditor.ExportReport"
+            text="Export Stability Report">
+            <add-to-group anchor="last" group-id="ToolsMenu" />
         </action>
     </actions>
 </idea-plugin>
