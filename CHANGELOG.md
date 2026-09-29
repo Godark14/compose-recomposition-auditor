@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-## [0.2.0] - 2026-09-27
+## [2026.1.1] - 2026-09-29
 ### Added
 - Freemium pricing model: plugin is now Freemium on JetBrains Marketplace, with all existing inspections and quick-fixes remaining free forever
 - **Export Stability Report** (Premium, 30-day trial): new action under Tools menu that scans the whole project and exports all detected issues (unstable parameters and lambda captures) as an HTML report and a JSON file
@@ -10,6 +10,9 @@
 - Refactored inspection logic into standalone `ComposableStabilityAnalyzer` and `LambdaCaptureAnalyzer`, shared between the live inspections and the batch export, guaranteeing identical detection behavior in both
 - Progress bar (cancellable) shown during export on larger projects, running off the EDT to avoid freezing the IDE
 - `StabilityReportCollectorTest`: integration tests covering the export pipeline end-to-end, mirroring the existing inspection test cases
+
+### Known limitations
+- Export currently reports the same two issue types as the live inspections (unstable parameters, unstable lambda captures); it does not yet aggregate historical data or compare across commits/branches
 
 ### Known limitations
 - Export currently reports the same two issue types as the live inspections (unstable parameters, unstable lambda captures); it does not yet aggregate historical data or compare across commits/branches
@@ -35,7 +38,7 @@
 - Quick-fix: convert `List`/`Map`/`Set` parameters to their `kotlinx.collections.immutable` equivalents, adding the import and Gradle dependency automatically
 - Quick-fix: annotate a class with `@Stable` when it has a `var` property causing instability
 
-[Unreleased]: https://github.com/Godark14/compose-recomposition-auditor/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/Godark14/compose-recomposition-auditor/compare/v0.1.0...v0.2.0
+[Unreleased]: https://github.com/Godark14/compose-recomposition-auditor/compare/v2026.1.1...HEAD
+[2026.1.1]: https://github.com/Godark14/compose-recomposition-auditor/compare/v0.1.0...v2026.1.1
 [0.1.0]: https://github.com/Godark14/compose-recomposition-auditor/compare/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/Godark14/compose-recomposition-auditor/commits/v0.0.1
